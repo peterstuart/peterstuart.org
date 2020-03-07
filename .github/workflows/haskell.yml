@@ -1,0 +1,16 @@
+name: Publish
+
+on:
+  push:
+    branches: [ actions ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Set Up Stack
+      uses: mstksg/setup-stack@v1
+    - name: Build
+      run: stack build && stack exec site build
+    - uses: actions/checkout@v2
