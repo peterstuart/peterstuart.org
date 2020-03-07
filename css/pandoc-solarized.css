@@ -1,4 +1,5 @@
-pre code { background: #FDF6E3; color: #657B83; }
+div.sourceCode, pre:not(.sourceCode) { background: #FDF6E3; }
+pre code { color: #657B83; }
 code span.kw { color: #859900; font-weight: normal; font-style: normal; } /* Keyword */
 code span.dt { color: #B58900; font-weight: normal; font-style: normal; } /* DataType */
 code span.dv { color: #2AA198; font-weight: normal; font-style: normal; } /* DecVal */
@@ -29,3 +30,12 @@ code span.an { color: #93A1A1; font-weight: normal; font-style: italic; } /* Ann
 code span.cv { color: #93A1A1; font-weight: normal; font-style: italic; } /* CommentVar */
 code span.in { color: #93A1A1; font-weight: normal; font-style: italic; } /* Information */
 a.sourceLine::before { text-decoration: none; }
+
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; position: absolute; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+pre.sourceCode { margin: 0; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+pre > code { margin-left: 0; }
