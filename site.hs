@@ -7,6 +7,7 @@ import           System.FilePath                ( (</>)
                                                 , takeDirectory
                                                 , takeBaseName
                                                 )
+import           Text.Pandoc.SideNote           ( usingSideNotes )
 
 main :: IO ()
 main = hakyll $ do
@@ -25,7 +26,7 @@ main = hakyll $ do
   match "posts/*" $ do
     route cleanRoute
     compile
-      $   pandocCompiler
+      $   tuftePandocCompiler
       >>= loadAndApplyTemplate "templates/post.html"    postCtx
       >>= loadAndApplyTemplate "templates/default.html" postCtx
       >>= relativizeUrls
@@ -73,3 +74,7 @@ cleanIndex :: String -> String
 cleanIndex url | idx `isSuffixOf` url = take (length url - length idx) url
                | otherwise            = url
   where idx = "index.html"
+
+tuftePandocCompiler = pandocCompilerWithTransform defaultHakyllReaderOptions
+                                                  defaultHakyllWriterOptions
+                                                  usingSideNotes
