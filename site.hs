@@ -14,7 +14,7 @@ main = hakyll $ do
     route idRoute
     compile copyFileCompiler
 
-  match "fonts/*/*/*q" $ do
+  match "fonts/*/*/*" $ do
     route idRoute
     compile copyFileCompiler
 
