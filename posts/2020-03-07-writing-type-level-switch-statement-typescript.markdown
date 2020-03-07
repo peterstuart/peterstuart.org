@@ -94,7 +94,11 @@ type Switch<T, Conditions extends Array<[any, any]>> =
   }[List.Head<Conditions> extends never
     ? 'hasNoConditions'
     : 'hasCondition'];
+```
 
+The compiler is happy, and we can confirm that it works with a few test types:
+
+```typescript
 type Test1 = Switch<string, [
   [number, "number"],
   [boolean, "boolean"],
@@ -112,8 +116,6 @@ type Test2 = Switch<object, [
 type Test3 = Switch<string, []>;
 // Test3 = never
 ```
-
-This is logically the same as the more obvious implementation, but TypeScript allows it.
 
 For explanations of conditional types, implementing recursive types, and other advanced type techniques, check out these articles:
 
