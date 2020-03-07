@@ -9,6 +9,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Cache ~/.stack
+      uses: actions/cache@v1
+      with:
+        path: ~/.stack
+        key: stack
     - uses: actions/checkout@v2
     - name: Set Up Stack
       uses: mstksg/setup-stack@v1
