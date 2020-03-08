@@ -71,7 +71,10 @@ root = "https://www.peterstuart.org"
 
 postCtx :: Context String
 postCtx =
-  constField "root" root <> dateField "date" "%B %e, %Y" <> defaultContext
+  constField "root" root
+    <> dateField "w3cDateTime" "%Y-%m-%d"
+    <> dateField "date"        "%B %e, %Y"
+    <> defaultContext
 
 -- The following clean* functions are from https://www.rohanjain.in/hakyll-clean-urls/
 
