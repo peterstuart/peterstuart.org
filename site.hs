@@ -27,7 +27,8 @@ main = hakyll $ do
     route cleanRoute
     compile
       $   tuftePandocCompiler
-      >>= loadAndApplyTemplate "templates/post.html"    postCtx
+      >>= loadAndApplyTemplate "templates/post.html" postCtx
+      >>= saveSnapshot "content"
       >>= loadAndApplyTemplate "templates/default.html" postCtx
       >>= relativizeUrls
       >>= cleanIndexUrls
@@ -47,8 +48,14 @@ main = hakyll $ do
         >>= cleanIndexUrls
         >>= cleanIndexHtmls
 
-  match "templates/*" $ compile templateBodyCompiler
+  create ["rss"] $ do
+    route idRoute
+    compile $ do
+      let feedCtx = postCtx `mappend` bodyField "description"
+      posts <- loadAllSnapshots "posts/*" "content" >>= recentFirst
+      renderRss feedConfiguration feedCtx posts
 
+  match "templates/*" $ compile templateBodyCompiler
 
 postCtx :: Context String
 postCtx = dateField "date" "%B %e, %Y" `mappend` defaultContext
@@ -78,3 +85,12 @@ cleanIndex url | idx `isSuffixOf` url = take (length url - length idx) url
 tuftePandocCompiler = pandocCompilerWithTransform defaultHakyllReaderOptions
                                                   defaultHakyllWriterOptions
                                                   usingSideNotes
+
+feedConfiguration :: FeedConfiguration
+feedConfiguration = FeedConfiguration
+  { feedTitle       = "peterstuart.org"
+  , feedDescription = "Articles from peterstuart.org"
+  , feedAuthorName  = "Peter Stuart"
+  , feedAuthorEmail = "peter@peterstuart.org"
+  , feedRoot        = "http://www.peterstuart.org"
+  }
