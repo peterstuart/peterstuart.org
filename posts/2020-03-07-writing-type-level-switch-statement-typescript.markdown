@@ -3,7 +3,9 @@ title: Writing a Type-Level Switch Statement in TypeScript
 author: Peter Stuart
 ---
 
-I recently came across a situation where I needed to write a very long [conditional type][conditional-types] that looked something like this:
+I recently came across a situation where I needed to write a very long conditional type[^conditional-types] that looked something like this:
+
+[^conditional-types]: Conditional types have the format <span class="nobr">`T extends U ? X : Y`</span>. Read more about them in [the TypeScript docs][conditional-types].
 
 ```typescript
 type Cond<Value,
@@ -119,11 +121,12 @@ type Test3 = Switch<string, []>;
 
 For explanations of conditional types, implementing recursive types, and other advanced type techniques, check out these articles:
 
-- [Advanced Types][conditional-types] in the TypeScript docs
+- [Advanced Types][advanced-types] in the TypeScript docs
 - [How to master advanced TypeScript patterns][master-advanced-typescript-patterns] by Pierre-Antoine Mills (the author of [ts-toolbelt][ts-toolbelt])
 
 [pyramid-of-doom]: https://en.wikipedia.org/wiki/Pyramid_of_doom_(programming)
 [ts-toolbelt]: https://github.com/pirix-gh/ts-toolbelt
+[advanced-types]: https://www.typescriptlang.org/docs/handbook/advanced-types.html
 [conditional-types]: https://www.typescriptlang.org/docs/handbook/advanced-types.html#conditional-types
 [master-advanced-typescript-patterns]: https://www.freecodecamp.org/news/typescript-curry-ramda-types-f747e99744ab/
 
