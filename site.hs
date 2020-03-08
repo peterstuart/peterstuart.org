@@ -33,6 +33,15 @@ main = hakyll $ do
       >>= cleanIndexUrls
       >>= cleanIndexHtmls
 
+  match (fromList ["error.markdown"]) $ do
+    route $ setExtension "html"
+    compile
+      $   pandocCompiler
+      >>= loadAndApplyTemplate "templates/default.html" defaultContext
+      >>= relativizeUrls
+      >>= cleanIndexUrls
+      >>= cleanIndexHtmls
+
   create ["index.html"] $ do
     route idRoute
     compile $ do
