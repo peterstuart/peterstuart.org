@@ -1,1 +1,7 @@
+<nav>
+  <p>
+    <a href="/">Home</a>
+  </p>
+</nav>
+
 # Error
