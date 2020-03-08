@@ -53,10 +53,25 @@ main = hakyll $ do
       posts <- loadAllSnapshots "posts/*" "content" >>= recentFirst
       renderRss feedConfiguration feedCtx posts
 
+  create ["sitemap.xml"] $ do
+    route idRoute
+    compile $ do
+      posts       <- recentFirst =<< loadAll "posts/*"
+      singlePages <- loadAll (fromList [])
+      let pages = posts <> singlePages
+          sitemapCtx =
+            constField "root" root <> listField "pages" postCtx (return pages)
+      makeItem ("" :: String)
+        >>= loadAndApplyTemplate "templates/sitemap.xml" sitemapCtx
+
   match "templates/*" $ compile templateBodyCompiler
 
+root :: String
+root = "https://www.peterstuart.org"
+
 postCtx :: Context String
-postCtx = dateField "date" "%B %e, %Y" <> defaultContext
+postCtx =
+  constField "root" root <> dateField "date" "%B %e, %Y" <> defaultContext
 
 -- The following clean* functions are from https://www.rohanjain.in/hakyll-clean-urls/
 
