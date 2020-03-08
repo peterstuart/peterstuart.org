@@ -1,7 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 import           Data.List                      ( isSuffixOf )
-import           Data.Monoid                    ( mappend )
 import           Hakyll
 import           System.FilePath                ( (</>)
                                                 , takeDirectory
@@ -38,8 +37,7 @@ main = hakyll $ do
     route idRoute
     compile $ do
       posts <- recentFirst =<< loadAll "posts/*"
-      let ctx =
-            listField "posts" postCtx (return posts) `mappend` defaultContext
+      let ctx = listField "posts" postCtx (return posts) <> defaultContext
 
       makeItem ""
         >>= loadAndApplyTemplate "templates/archive.html" ctx
@@ -51,14 +49,14 @@ main = hakyll $ do
   create ["rss"] $ do
     route idRoute
     compile $ do
-      let feedCtx = postCtx `mappend` bodyField "description"
+      let feedCtx = postCtx <> bodyField "description"
       posts <- loadAllSnapshots "posts/*" "content" >>= recentFirst
       renderRss feedConfiguration feedCtx posts
 
   match "templates/*" $ compile templateBodyCompiler
 
 postCtx :: Context String
-postCtx = dateField "date" "%B %e, %Y" `mappend` defaultContext
+postCtx = dateField "date" "%B %e, %Y" <> defaultContext
 
 -- The following clean* functions are from https://www.rohanjain.in/hakyll-clean-urls/
 
