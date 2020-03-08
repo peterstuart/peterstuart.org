@@ -60,6 +60,7 @@ h1 {
     font-weight: 400;
     margin-top: 4rem;
     margin-bottom: 1.5rem;
+    padding-right: 12.5%;
     font-size: 3.2rem;
     line-height: 1; 
 }
@@ -392,6 +393,10 @@ label.margin-toggle:not(.sidenote-number) {
         width: 84%;
         padding-left: 8%;
         padding-right: 8%; 
+    }
+
+    h1 {
+      padding-right: 0;
     }
     
     hr,
