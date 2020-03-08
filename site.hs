@@ -82,6 +82,7 @@ cleanIndex url | idx `isSuffixOf` url = take (length url - length idx) url
                | otherwise            = url
   where idx = "index.html"
 
+tuftePandocCompiler :: Compiler (Item String)
 tuftePandocCompiler = pandocCompilerWithTransform defaultHakyllReaderOptions
                                                   defaultHakyllWriterOptions
                                                   usingSideNotes
