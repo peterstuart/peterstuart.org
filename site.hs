@@ -28,19 +28,17 @@ main = hakyll $ do
       $   tuftePandocCompiler
       >>= loadAndApplyTemplate "templates/post.html" postCtx
       >>= saveSnapshot "content"
-      >>= loadAndApplyTemplate "templates/default.html" postCtx
-      >>= relativizeUrls
-      >>= cleanIndexUrls
-      >>= cleanIndexHtmls
+      >>= applyNavTemplate postCtx
+      >>= applyDefaultTemplate postCtx
+      >>= cleanUrls
 
   match (fromList ["error.markdown"]) $ do
     route $ setExtension "html"
     compile
       $   pandocCompiler
-      >>= loadAndApplyTemplate "templates/default.html" defaultContext
-      >>= relativizeUrls
-      >>= cleanIndexUrls
-      >>= cleanIndexHtmls
+      >>= applyNavTemplate defaultContext
+      >>= applyDefaultTemplate defaultContext
+      >>= cleanUrls
 
   create ["index.html"] $ do
     route idRoute
@@ -50,10 +48,8 @@ main = hakyll $ do
 
       makeItem ""
         >>= loadAndApplyTemplate "templates/archive.html" ctx
-        >>= loadAndApplyTemplate "templates/default.html" ctx
-        >>= relativizeUrls
-        >>= cleanIndexUrls
-        >>= cleanIndexHtmls
+        >>= applyDefaultTemplate ctx
+        >>= cleanUrls
 
   create ["rss"] $ do
     route idRoute
@@ -85,6 +81,15 @@ postCtx =
     <> dateField "date"        "%B %e, %Y"
     <> defaultContext
 
+applyDefaultTemplate :: Context a -> Item a -> Compiler (Item String)
+applyDefaultTemplate = loadAndApplyTemplate "templates/default.html"
+
+applyNavTemplate :: Context a -> Item a -> Compiler (Item String)
+applyNavTemplate = loadAndApplyTemplate "templates/nav.html"
+
+cleanUrls :: Item String -> Compiler (Item String)
+cleanUrls item = relativizeUrls item >>= cleanIndexUrls >>= cleanIndexHtmls
+
 -- The following clean* functions are from https://www.rohanjain.in/hakyll-clean-urls/
 
 cleanRoute :: Routes
@@ -97,10 +102,10 @@ cleanIndexUrls :: Item String -> Compiler (Item String)
 cleanIndexUrls = return . fmap (withUrls cleanIndex)
 
 cleanIndexHtmls :: Item String -> Compiler (Item String)
-cleanIndexHtmls = return . fmap (replaceAll pat replacement)
+cleanIndexHtmls = return . fmap (replaceAll indexPattern replacement)
  where
-  pat         = "/index.html"
-  replacement = const "/"
+  indexPattern = "/index.html"
+  replacement  = const "/"
 
 cleanIndex :: String -> String
 cleanIndex url | idx `isSuffixOf` url = take (length url - length idx) url
