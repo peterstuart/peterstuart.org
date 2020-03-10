@@ -8,7 +8,7 @@ I recently came across a situation where I needed to write a very long condition
 [^conditional-types]: Conditional types have the format <span class="nobr">`T extends U ? X : Y`</span>. Read more about them in [the TypeScript docs][conditional-types].
 
 ```typescript
-type Cond<Value,
+type Foo<Value,
   Match1, Result1,
   Match2, Result2,
   Match3, Result3,
@@ -21,7 +21,7 @@ type Cond<Value,
         ? Result3
         : ...
 
-type Test1 = Cond<string,
+type Test1 = Foo<string,
   number, "number",
   boolean, "boolean",
   string, "string"
@@ -29,7 +29,7 @@ type Test1 = Cond<string,
 // Test1 = "string"
 ```
 
-Rather than nesting `extends` expressions, which only supports a fixed number of conditions and results in a [pyramid of doom][pyramid-of-doom] in the definition of `Cond`, this could be better expressed using a `Switch` type:
+Rather than nesting `extends` expressions, which only supports a fixed number of conditions and results in a [pyramid of doom][pyramid-of-doom] in the definition of `Foo`, this could be better expressed using a `Switch` type:
 
 ```typescript
 type Switch<Value, [
@@ -56,10 +56,10 @@ To iterate through the array of conditions, I use the `List.Head` and `List.Tail
 ```typescript
 import {List} from 'ts-toolbelt';
 
-type Test1 = List.Head<boolean, string, number>;
+type Test1 = List.Head<[boolean, string, number]>;
 // Test1 = boolean
 
-type Test2 = List.Tail<boolean, string, number>;
+type Test2 = List.Tail<[boolean, string, number]>;
 // Test2 = [string, number]
 ```
 
@@ -80,7 +80,7 @@ type Switch<T, Conditions extends Array<[any, any]>> =
 // Error: Type alias 'Switch' circularly references itself
 ```
 
-To work around that, we need to add a level of indirection by indexing into an object:
+To work around that, we need to add a level of indirection by indexing into an object[^recursive-types]:
 
 ```typescript
 import {List} from 'ts-toolbelt';
@@ -97,6 +97,8 @@ type Switch<T, Conditions extends Array<[any, any]>> =
     ? 'hasNoConditions'
     : 'hasCondition'];
 ```
+
+[^recursive-types]: See [Recursive types][recursive-types] in [How to master advanced TypeScript patterns][master-advanced-typescript-patterns] by Pierre-Antoine Mills for an explanation of this technique.
 
 The compiler is happy, and we can confirm that it works with a few test types:
 
@@ -119,6 +121,16 @@ type Test3 = Switch<string, []>;
 // Test3 = never
 ```
 
+To add a default case, match against `any` in the last condition:
+
+```typescript
+type Test1 = Switch<string, [
+  [number, "number"],
+  [any, "default case"]
+]>;
+// Test1 = "default case"
+```
+
 For explanations of conditional types, implementing recursive types, and other advanced type techniques, check out these articles:
 
 - [Advanced Types][advanced-types] in the TypeScript docs
@@ -128,5 +140,6 @@ For explanations of conditional types, implementing recursive types, and other a
 [ts-toolbelt]: https://github.com/pirix-gh/ts-toolbelt
 [advanced-types]: https://www.typescriptlang.org/docs/handbook/advanced-types.html
 [conditional-types]: https://www.typescriptlang.org/docs/handbook/advanced-types.html#conditional-types
+[recursive-types]: https://www.freecodecamp.org/news/typescript-curry-ramda-types-f747e99744ab/#recursive-types
 [master-advanced-typescript-patterns]: https://www.freecodecamp.org/news/typescript-curry-ramda-types-f747e99744ab/
 
