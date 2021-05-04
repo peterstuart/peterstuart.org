@@ -63,7 +63,7 @@ type Test2 = List.Tail<[boolean, string, number]>;
 // Test2 = [string, number]
 ```
 
-The most obvious way to write the `Switch` type would be something like this:
+Using `Head` and `Tail`, we can define `Switch` like this:
 
 ```typescript
 type Switch<T, Conditions extends Array<[any, any]>> = 
@@ -74,33 +74,7 @@ type Switch<T, Conditions extends Array<[any, any]>> =
       : Switch<T, List.Tail<Conditions>>;
 ```
 
-... but TypeScript doesn't allow recursive type definitions:
-
-```typescript
-// Error: Type alias 'Switch' circularly references itself
-```
-
-To work around that, we need to add a level of indirection by indexing into an object[^recursive-types]:
-
-```typescript
-import {List} from 'ts-toolbelt';
-
-type Switch<T, Conditions extends Array<[any, any]>> =
-  {
-    hasCondition:
-      T extends List.Head<Conditions>[0]
-        ? List.Head<Conditions>[1]
-        : Switch<T, List.Tail<Conditions>>;
-    hasNoConditions:
-      never;
-  }[List.Head<Conditions> extends never
-    ? 'hasNoConditions'
-    : 'hasCondition'];
-```
-
-[^recursive-types]: See [Recursive types][recursive-types] in [How to master advanced TypeScript patterns][master-advanced-typescript-patterns] by Pierre-Antoine Mills for an explanation of this technique.
-
-The compiler is happy, and we can confirm that it works with a few test types:
+We can confirm that it works with a few test types:
 
 ```typescript
 type Test1 = Switch<string, [
