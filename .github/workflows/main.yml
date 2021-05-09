@@ -22,7 +22,7 @@ jobs:
         name: site
         signingKey: ${{ secrets.CACHIX_SIGNING_KEY }}
 
-    - run: nix-build
+    - run: nix-build --verbose
     - run: nix-shell --run "echo OK"
 
     - name: Artifact pages
