@@ -1,3 +1,6 @@
-/.stack-work/
-/_cache/
-/_site/
+/hakyll-cache/
+/generator/_site/
+/generator/_cache/
+/result
+/dist/
+/.pre-commit-config.yaml
