@@ -1,0 +1,24 @@
+* [[https://www.peterstuart.org][peterstuart.org]]
+
+Based on [[https://github.com/rpearce/hakyll-nix-template][rpearce/hakyll-nix-template]].
+
+** Previewing
+
+#+BEGIN_SRC bash
+  cd generator
+  nix-shell
+  hakyll-site watch
+#+END_SRC
+
+** Building
+
+#+BEGIN_SRC bash
+  nix-build
+#+END_SRC
+
+** Updating Dependencies
+
+#+BEGIN_SRC bash
+  nix-shell --pure -p niv nix cacert
+  niv update --help
+#+END_SRC
