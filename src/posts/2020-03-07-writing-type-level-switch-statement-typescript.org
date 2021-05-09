@@ -1,0 +1,111 @@
+---
+title: Writing a Type-Level Switch Statement in TypeScript
+author: Peter Stuart
+---
+
+I recently came across a situation where I needed to write a very long conditional type[fn:conditional-types] that looked something like this:
+
+[fn:conditional-types] Conditional types have the format ~T extends U ? X : Y~. Read more about them in [[https://www.typescriptlang.org/docs/handbook/2/conditional-types.html][the TypeScript docs]].
+
+#+BEGIN_SRC typescript
+type Foo<Value,
+  Match1, Result1,
+  Match2, Result2,
+  Match3, Result3,
+  ...> =
+  Value extends Match1
+    ? Result1
+    : Value extends Match2
+      ? Result2
+      : Value extends Match3
+        ? Result3
+        : ...
+
+type Test1 = Foo<string,
+  number, "number",
+  boolean, "boolean",
+  string, "string"
+>
+// Test1 = "string"
+#+END_SRC
+
+Rather than nesting ~extends~ expressions, which only supports a fixed number of conditions and results in a [[https://en.wikipedia.org/wiki/Pyramid_of_doom_(programming)][pyramid of doom]] in the definition of ~Foo~, this could be better expressed using a ~Switch~ type:
+
+#+BEGIN_SRC typescript
+type Switch<Value, [
+  [Match1, Result1],
+  [Match2, Result2],
+  [Match3, Result3],
+  ...
+]> = ...
+
+type Test1 = Switch<string, [
+  [number, "number"],
+  [boolean, "boolean"],
+  [string, "string"]
+]>;
+// Test1 = "string"
+#+END_SRC
+
+~Switch~ supports an arbitrary number of conditions, and we can write a recursive definition for it.
+
+*** Defining Switch
+
+To iterate through the array of conditions, I use the ~List.Head~ and ~List.Tail~ types from the excellent [[https://github.com/pirix-gh/ts-toolbelt][ts-toolbelt]] library:
+
+#+BEGIN_SRC typescript
+import {List} from 'ts-toolbelt';
+
+type Test1 = List.Head<[boolean, string, number]>;
+// Test1 = boolean
+
+type Test2 = List.Tail<[boolean, string, number]>;
+// Test2 = [string, number]
+#+END_SRC
+
+Using ~Head~ and ~Tail~, we can define ~Switch~ like this:
+
+#+BEGIN_SRC typescript
+type Switch<T, Conditions extends Array<[any, any]>> = 
+  List.Head<Conditions> extends never
+    ? never
+    : T extends List.Head<Conditions>[0]
+      ? List.Head<Conditions>[1]
+      : Switch<T, List.Tail<Conditions>>;
+#+END_SRC
+
+We can confirm that it works with a few test types:
+
+#+BEGIN_SRC typescript
+type Test1 = Switch<string, [
+  [number, "number"],
+  [boolean, "boolean"],
+  [string, "string"]
+]>;
+// Test1 = "string"
+
+type Test2 = Switch<object, [
+  [number, "number"],
+  [boolean, "boolean"],
+  [string, "string"]
+]>;
+// Test2 = never
+
+type Test3 = Switch<string, []>;
+// Test3 = never
+#+END_SRC
+
+To add a default case, match against ~any~ in the last condition:
+
+#+BEGIN_SRC typescript
+type Test1 = Switch<string, [
+  [number, "number"],
+  [any, "default case"]
+]>;
+// Test1 = "default case"
+#+END_SRC
+
+For explanations of conditional types, implementing recursive types, and other advanced type techniques, check out these articles:
+
+- [[https://www.typescriptlang.org/docs/handbook/advanced-types.html][Advanced Types]] in the TypeScript docs
+- [[https://www.freecodecamp.org/news/typescript-curry-ramda-types-f747e99744ab/][How to master advanced TypeScript patterns]] by Pierre-Antoine Mills (the author of [[https://github.com/pirix-gh/ts-toolbelt][ts-toolbelt]])
