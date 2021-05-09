@@ -12,12 +12,12 @@ let
         (flip appendConfigureFlags hakyllFlags)
       ];
 
+      # use tarball from hackage because fetching from git doesn't work in github actions
       pandoc-sidenote = hpNew.callCabal2nix "pandoc-sidenote"
-        (builtins.fetchGit {
-          url = "git@github.com:jez/pandoc-sidenote.git";
-          rev = "766eb9db5c849b1007f5c310b8012e7da68e51a6";
-        })
-        { };
+        (builtins.fetchTarball {
+          url =
+            "https://hackage.haskell.org/package/pandoc-sidenote-0.20.0.0/pandoc-sidenote-0.20.0.0.tar.gz";
+        }) { };
 
       site = hpNew.callCabal2nix "site" ./. { };
 
@@ -31,5 +31,4 @@ let
       pandoc-types = dontCheck (hpNew.callHackage "pandoc-types" "1.20" { });
     };
   };
-in
-haskellPackages
+in haskellPackages
