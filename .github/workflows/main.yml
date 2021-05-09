@@ -19,7 +19,7 @@ jobs:
     - name: Build with cachix
       uses: cachix/cachix-action@v10
       with:
-        name: site
+        name: peterstuart
         signingKey: ${{ secrets.CACHIX_SIGNING_KEY }}
 
     - run: nix-build
