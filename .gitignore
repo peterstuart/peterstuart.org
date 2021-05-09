@@ -3,3 +3,4 @@
 /generator/_cache/
 /result
 /dist/
+/.pre-commit-config.yaml

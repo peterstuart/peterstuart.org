@@ -1,11 +1,7 @@
-let
-  ø
-  sources = import ./nix/sources.nix;
-  iøn
-  { pkgs ? import sources.nixpkgs {} }:
-
-  let
-  cfg = import ./nix/default.nix { };
+let sources = import ./nix/sources.nix;
+in
+{ pkgs ? import sources.nixpkgs { } }:
+let cfg = import ./nix/default.nix { };
 in
 pkgs.mkShell {
   buildInputs = cfg.tools;
