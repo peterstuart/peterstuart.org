@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss">
+    <link rel="stylesheet" href="../../css/tufte.css">
+    <link rel="stylesheet" href="../../css/pandoc.css">
+    <link rel="stylesheet" href="../../css/pandoc-solarized.css">
+    <link rel="stylesheet" href="../../css/default.css">
+    <title>Peter Stuart - Writing a Type-Level Switch Statement in TypeScript</title>
+  </head>
+  <body>
+    <nav>
+  <p>
+    <a href="../../">Home</a>
+  </p>
+</nav>
+
+<article>
+  <h1>Writing a Type-Level Switch Statement in TypeScript</h1>
+  <p class="subtitle">
+    by Peter Stuart on March  7, 2020
+  </p>
+  <section>
+    <p>I recently came across a situation where I needed to write a very long conditional type<span><label for="sn-0" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-0" class="margin-toggle" /><span class="sidenote">Conditional types have the format <span class="nobr"><code>T extends U ? X : Y</code></span>. Read more about them in <a href="https://www.typescriptlang.org/docs/handbook/advanced-types.html#conditional-types">the TypeScript docs</a>.<br />
+<br />
+</span></span> that looked something like this:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">type</span> Foo<span class="op">&lt;</span>Value<span class="op">,</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>  Match1<span class="op">,</span> Result1<span class="op">,</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>  Match2<span class="op">,</span> Result2<span class="op">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>  Match3<span class="op">,</span> Result3<span class="op">,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>  <span class="op">...&gt;</span> <span class="op">=</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>  Value extends Match1</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>    <span class="op">?</span> Result1</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a>    <span class="op">:</span> Value extends Match2</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a>      <span class="op">?</span> Result2</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a>      <span class="op">:</span> Value extends Match3</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a>        <span class="op">?</span> Result3</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a>        <span class="op">:</span> <span class="op">...</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true"></a><span class="kw">type</span> Test1 <span class="op">=</span> Foo<span class="op">&lt;</span><span class="dt">string</span><span class="op">,</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true"></a>  number<span class="op">,</span> <span class="st">&quot;number&quot;</span><span class="op">,</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true"></a>  boolean<span class="op">,</span> <span class="st">&quot;boolean&quot;</span><span class="op">,</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true"></a>  string<span class="op">,</span> <span class="st">&quot;string&quot;</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true"></a><span class="op">&gt;</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true"></a><span class="co">// Test1 = &quot;string&quot;</span></span></code></pre></div>
+<p>Rather than nesting <code>extends</code> expressions, which only supports a fixed number of conditions and results in a <a href="https://en.wikipedia.org/wiki/Pyramid_of_doom_(programming)">pyramid of doom</a> in the definition of <code>Foo</code>, this could be better expressed using a <code>Switch</code> type:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">type</span> Switch<span class="op">&lt;</span>Value<span class="op">,</span> [</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>  [Match1<span class="op">,</span> Result1]<span class="op">,</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>  [Match2<span class="op">,</span> Result2]<span class="op">,</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>  [Match3<span class="op">,</span> Result3]<span class="op">,</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>  <span class="op">...</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>]<span class="op">&gt;</span> <span class="op">=</span> <span class="op">...</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a><span class="kw">type</span> Test1 <span class="op">=</span> Switch<span class="op">&lt;</span><span class="dt">string</span><span class="op">,</span> [</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a>  [number<span class="op">,</span> <span class="st">&quot;number&quot;</span>]<span class="op">,</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a>  [boolean<span class="op">,</span> <span class="st">&quot;boolean&quot;</span>]<span class="op">,</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a>  [string<span class="op">,</span> <span class="st">&quot;string&quot;</span>]</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a>]<span class="op">&gt;;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a><span class="co">// Test1 = &quot;string&quot;</span></span></code></pre></div>
+<p><code>Switch</code> supports an arbitrary number of conditions, and we can write a recursive definition for it.</p>
+<h2 id="defining-switch">Defining Switch</h2>
+<p>To iterate through the array of conditions, I use the <code>List.Head</code> and <code>List.Tail</code> types from the excellent <a href="https://github.com/pirix-gh/ts-toolbelt">ts-toolbelt</a> library:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="im">import</span> {List} from <span class="st">'ts-toolbelt'</span><span class="op">;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a><span class="kw">type</span> Test1 <span class="op">=</span> List<span class="op">.</span><span class="at">Head</span><span class="op">&lt;</span>[<span class="dt">boolean</span><span class="op">,</span> <span class="dt">string</span><span class="op">,</span> <span class="dt">number</span>]<span class="op">&gt;;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a><span class="co">// Test1 = boolean</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a><span class="kw">type</span> Test2 <span class="op">=</span> List<span class="op">.</span><span class="at">Tail</span><span class="op">&lt;</span>[<span class="dt">boolean</span><span class="op">,</span> <span class="dt">string</span><span class="op">,</span> <span class="dt">number</span>]<span class="op">&gt;;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a><span class="co">// Test2 = [string, number]</span></span></code></pre></div>
+<p>Using <code>Head</code> and <code>Tail</code>, we can define <code>Switch</code> like this:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">type</span> Switch<span class="op">&lt;</span>T<span class="op">,</span> Conditions extends Array<span class="op">&lt;</span>[<span class="dt">any</span><span class="op">,</span> <span class="dt">any</span>]<span class="op">&gt;&gt;</span> <span class="op">=</span> </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>  List<span class="op">.</span><span class="at">Head</span><span class="op">&lt;</span>Conditions<span class="op">&gt;</span> extends <span class="dt">never</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>    <span class="op">?</span> <span class="dt">never</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>    <span class="op">:</span> T extends List<span class="op">.</span><span class="at">Head</span><span class="op">&lt;</span>Conditions<span class="op">&gt;</span>[<span class="dv">0</span>]</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a>      <span class="op">?</span> List<span class="op">.</span><span class="at">Head</span><span class="op">&lt;</span>Conditions<span class="op">&gt;</span>[<span class="dv">1</span>]</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>      <span class="op">:</span> Switch<span class="op">&lt;</span>T<span class="op">,</span> List<span class="op">.</span><span class="at">Tail</span><span class="op">&lt;</span>Conditions<span class="op">&gt;&gt;;</span></span></code></pre></div>
+<p>We can confirm that it works with a few test types:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="kw">type</span> Test1 <span class="op">=</span> Switch<span class="op">&lt;</span><span class="dt">string</span><span class="op">,</span> [</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>  [number<span class="op">,</span> <span class="st">&quot;number&quot;</span>]<span class="op">,</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>  [boolean<span class="op">,</span> <span class="st">&quot;boolean&quot;</span>]<span class="op">,</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a>  [string<span class="op">,</span> <span class="st">&quot;string&quot;</span>]</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a>]<span class="op">&gt;;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a><span class="co">// Test1 = &quot;string&quot;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a><span class="kw">type</span> Test2 <span class="op">=</span> Switch<span class="op">&lt;</span><span class="dt">object</span><span class="op">,</span> [</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true"></a>  [number<span class="op">,</span> <span class="st">&quot;number&quot;</span>]<span class="op">,</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true"></a>  [boolean<span class="op">,</span> <span class="st">&quot;boolean&quot;</span>]<span class="op">,</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true"></a>  [string<span class="op">,</span> <span class="st">&quot;string&quot;</span>]</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true"></a>]<span class="op">&gt;;</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true"></a><span class="co">// Test2 = never</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true"></a></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true"></a><span class="kw">type</span> Test3 <span class="op">=</span> Switch<span class="op">&lt;</span><span class="dt">string</span><span class="op">,</span> []<span class="op">&gt;;</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true"></a><span class="co">// Test3 = never</span></span></code></pre></div>
+<p>To add a default case, match against <code>any</code> in the last condition:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="kw">type</span> Test1 <span class="op">=</span> Switch<span class="op">&lt;</span><span class="dt">string</span><span class="op">,</span> [</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a>  [number<span class="op">,</span> <span class="st">&quot;number&quot;</span>]<span class="op">,</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a>  [any<span class="op">,</span> <span class="st">&quot;default case&quot;</span>]</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a>]<span class="op">&gt;;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a><span class="co">// Test1 = &quot;default case&quot;</span></span></code></pre></div>
+<p>For explanations of conditional types, implementing recursive types, and other advanced type techniques, check out these articles:</p>
+<ul>
+<li><a href="https://www.typescriptlang.org/docs/handbook/advanced-types.html">Advanced Types</a> in the TypeScript docs</li>
+<li><a href="https://www.freecodecamp.org/news/typescript-curry-ramda-types-f747e99744ab/">How to master advanced TypeScript patterns</a> by Pierre-Antoine Mills (the author of <a href="https://github.com/pirix-gh/ts-toolbelt">ts-toolbelt</a>)</li>
+</ul>
+  </section>
+</article>
+
+
+  </body>
+</html>
