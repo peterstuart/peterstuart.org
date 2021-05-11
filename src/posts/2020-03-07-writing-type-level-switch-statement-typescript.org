@@ -49,7 +49,7 @@ type Test1 = Switch<string, [
 
 ~Switch~ supports an arbitrary number of conditions, and we can write a recursive definition for it.
 
-*** Defining Switch
+** Defining Switch
 
 To iterate through the array of conditions, I use the ~List.Head~ and ~List.Tail~ types from the excellent [[https://github.com/pirix-gh/ts-toolbelt][ts-toolbelt]] library:
 
