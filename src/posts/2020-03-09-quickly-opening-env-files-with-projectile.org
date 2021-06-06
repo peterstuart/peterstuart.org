@@ -33,3 +33,5 @@ I bind all the variations of `projectile-env` with the prefix `C-c C-p e`, follo
 | ~.env.local~   | ~C-c C-p e l~ |
 | ~.env.test~    | ~C-c C-p e t~ |
 | ~.env.example~ | ~C-c C-p e x~ |
+
+Update: I have published this code as a package: [[https://github.com/peterstuart/projectile-env][peterstuart/projectile-env]].
