@@ -25,7 +25,7 @@ It supports an optional ~suffix~ argument, which I use to open ~.env~ files with
   (projectile-env ".local"))
 #+END_SRC
 
-I bind all the variations of `projectile-env` with the prefix `C-c C-p e`, followed by a single key (usually the first letter of the suffix to the file name):
+I bind all the variations of ~projectile-env~ with the prefix ~C-c C-p e~, followed by a single key (usually the first letter of the suffix to the file name):
 
 | File           | Key Binding   |
 |----------------+---------------|
