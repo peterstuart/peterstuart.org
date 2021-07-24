@@ -13,3 +13,9 @@ kbd {
     padding: 1px 8px;
     margin: 0 1px;
 }
+
+.non-code {
+    font-family: et-book, Palatino, "Palatino Linotype", "Palatino LT STD", "Book Antiqua", Georgia, serif
+    padding-top: 1.5px;
+    padding-bottom: 0;
+}

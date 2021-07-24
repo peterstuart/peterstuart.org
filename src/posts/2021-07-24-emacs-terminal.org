@@ -1,0 +1,20 @@
+---
+title: Replace Your Terminal with Emacs
+author: Peter Stuart
+---
+
+When I'm working in [[https://www.gnu.org/software/emacs][Emacs]], I use [[https://github.com/akermu/emacs-libvterm][~vterm~]] as a terminal emulator. Rather than use a separate terminal emulator when I'm not already in Emacs, I'd like to be able to easily open a new Emacs frame with a fresh terminal in it. To do that, I wrote a script which runs ~emacsclient~[fn:daemon], opens a new frame, and launches ~vterm~:
+
+#+BEGIN_SRC bash
+  emacsclient -cn --eval "(progn (x-focus-frame nil) (vterm t))"
+#+END_SRC
+
+- ~-cn~ creates a new frame, but does not wait for it to close before finishing the script.
+- ~(x-focus-frame nil)~ focuses the new frame. On macOS, the new frame will often appear in the background without this.
+- ~(vterm t)~ creates a new ~vterm~ buffer. Without the ~t~ argument, it would switch to an already-existing ~vterm~ buffer, if there was one.
+
+On Linux, with [[https://xmonad.org/][XMonad]] as my window manager, I bind this script to @@html:<kbd>@@S-s-<return>@@html:</kbd>@@. On macOS, I use [[https://www.alfredapp.com/][Alfred]] to bind it to @@html:<kbd class="non-code">⇧⌘⏎</kbd>@@.[fn:alfred-tweak]
+
+[fn:daemon] This requires that you are running [[https://www.emacswiki.org/emacs/EmacsAsDaemon][Emacs as a daemon]].
+
+[fn:alfred-tweak] Alfred runs the script from the path of the workflow that contains it, so I add ~cd ~~ to the beginning of the script on macOS.
