@@ -5,7 +5,7 @@ author: Peter Stuart
 
 I often compile projects in [[https://www.gnu.org/software/emacs][Emacs]] using ~project-compile~, and then don't notice that they finished because the compilation window is no longer visible, so I added the following code to my config. It adds a hook to ~compilation-mode~ which alerts me when compilation finishes, only if the compilation buffer is not visible in a focused frame. It requires the [[https://github.com/jwiegley/alert][alert]] package.
 
-#+begin_src elisp
+#+begin_src emacs-lisp
   (defun ps/buffer-visible-in-focused-frame-p (buffer)
     "Return t if BUFFER is visible in the focused frame, or nil otherwise."
     (let ((windows (get-buffer-window-list buffer nil t)))
