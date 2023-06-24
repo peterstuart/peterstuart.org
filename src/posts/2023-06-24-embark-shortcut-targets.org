@@ -1,0 +1,49 @@
+---
+title: Open Shortcut Stories Using Embark
+author: Peter Stuart
+---
+
+I'm working on a project using [[https://www.shortcut.com/][Shortcut]], where every commit message must include the ID of a Shortcut story, in this format
+
+#+begin_src text
+  [sc-12345] Commit message
+#+end_src
+
+I wanted to be able to quickly open a Shortcut story in a browser from the ID. Since I use [[https://github.com/oantolin/embark][Embark]] in [[https://www.gnu.org/software/emacs/][Emacs]], I created a new "target finder" which converts text like ~[sc-12345]~ into a URL, and added it to ~embark-target-finders~. The target finder is based on the "short Wikipedia links" example in the Embark manual. You can find it at ~info:(embark) New target example in regular buffers - short Wikipedia links~.
+
+#+begin_src emacs-lisp
+  (defvar ps/embark-target-shortcut-story-workspace nil
+    "The Shortcut workspace used when creating story URLs.")
+
+  (defconst ps/embark-target-shortcut-story--start-end-regexp
+    "SCsc\\-[0-9]+"
+    "The regexp used to find the beginning and end of Shortcut story IDs.")
+
+  (defun ps/embark-target-shortcut-story ()
+    "Target a Shortcut story ID at point of the form sc-[story-id].
+
+  `ps/embark-target-shortcut-story-workspace' must be set or this
+  function will return nil."
+    (when ps/embark-target-shortcut-story-workspace
+      (save-excursion
+        (let* ((start (progn
+                        (skip-chars-backward ps/embark-target-shortcut-story--start-end-regexp)
+                        (point)))
+               (end   (progn
+                        (skip-chars-forward ps/embark-target-shortcut-story--start-end-regexp)
+                        (point)))
+               (str   (buffer-substring-no-properties start end)))
+          (save-match-data
+            (when (string-match "sc-\\([0-9]+\\)" str)
+              `(url
+                ,(format "https://app.shortcut.com/%s/story/%s"
+                         ps/embark-target-shortcut-story-workspace
+                         (match-string 1 str))
+                ,start . ,end)))))))
+
+  (add-to-list 'embark-target-finders 'ps/embark-target-shortcut-story)
+#+end_src
+
+When looking at Git logs, or in any other buffer, I can invoke ~embark-dwim~ when the point is on a Shortcut story ID, and it will open in my browser.
+
+Since Shortcut story URLs include a workspace name, you must set ~ps/embark-target-shortcut-story-workspace~ for the target finder to generate a URL. For example, if ~ps/embark-target-shortcut-story-workspace~ is set to ~"my-workspace"~, and the point is on the story ID ~[sc-12345]~, ~embark-dwim~ will open ~https://app.shortcut.com/my-workspace/story/12345~ in your browser.
