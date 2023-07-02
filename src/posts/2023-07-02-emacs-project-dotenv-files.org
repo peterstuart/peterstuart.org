@@ -1,0 +1,43 @@
+---
+title: Quickly Opening .env/.envrc Files in Emacs
+author: Peter Stuart
+---
+
+I use [[https://www.gnu.org/software/emacs/][Emacs]]'s built-in [[https://github.com/emacs-mirror/emacs/blob/master/lisp/progmodes/project.el][project.el]] to manage projects, and ~.env~ or ~.envrc~ files to manage environment variables for those projects. Those files are usually not tracked by ~git~, so ~project-file-file~ doesn't offer them as options[fn:project-find-file-prefix], so I wrote a small function that will find all ~.env~ and ~.envrc~ files (including files with suffixes, like ~.env.local~ and ~.envrc.sample~) in the project root:
+
+#+begin_src emacs-lisp
+  (defun ps/project-find-dotenv-file ()
+    (interactive)
+    (let* ((project           (project-current t))
+           (default-directory (project-root project))
+           (files             (file-expand-wildcards "\\`.env\\(rc\\)?\\(\\..+\\)?\\'" nil t))
+           (completion        (lambda (str pred flag)
+                                (pcase flag
+                                  ('metadata
+                                   `(metadata (category . file)))
+                                  (_
+                                   (all-completions str files pred)))))
+           (file              (completing-read "Find .env/.envrc file: " completion)))
+      (find-file file)))
+#+end_src
+
+~completion~ could be a simple list of strings instead of a ~lambda~, but I use [[https://github.com/minad/marginalia][marginalia]] to annotate completions with useful information, which requires that the category metadata be set on completions so that it knows that (in this case) it should treat the completions as files when annotating them.
+
+[[../../images/2023-07-02-emacs-projects-dotenv-files/example.png]]
+
+I bind it in ~project-prefix-map~ and also add it to the project switcher:
+
+#+begin_src emacs-lisp
+  (use-package project
+    :ensure nil
+    :init
+    (setq project-switch-commands '((magit-project-status        "Magit")
+                                    (project-find-file           "Find file")
+                                    (ps/project-find-dotenv-file "Find .env file")))
+    :bind
+    (:map project-prefix-map
+          ("m" . magit-project-status)
+          ("v" . ps/project-find-dotenv-file)))
+#+end_src
+
+[fn:project-find-file-prefix] Invoking ~project-find-file~ with a prefix argument *will* find uncommitted files, but also all other files that have been added to ~.gitignore~, which I don't want.
