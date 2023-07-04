@@ -3,7 +3,7 @@ title: Open Shortcut Stories Using Embark
 author: Peter Stuart
 ---
 
-I'm working on a project using [[https://www.shortcut.com/][Shortcut]], where every commit message must include the ID of a Shortcut story, in this format
+I'm working on a project using [[https://www.shortcut.com/][Shortcut]], where every commit message must include the ID of a Shortcut story, in this format:
 
 #+begin_src text
   [sc-12345] Commit message
